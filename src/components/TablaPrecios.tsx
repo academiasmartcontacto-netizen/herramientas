@@ -282,8 +282,48 @@ export default function TablaPreciosSimple() {
     }).format(amount)
   }
 
-  const exportToPDF = () => {
-    alert('Función de exportación a PDF en desarrollo')
+  const exportToPDF = async () => {
+    try {
+      // Importar la solución de plantilla PDF
+      const { generatePdfFromPlantilla } = await import('../utils/plantillaPdfHelper')
+      
+      // Preparar datos de las piezas seleccionadas
+      const selectedData = Array.from(selectedCells).map((cellKey: string) => {
+        const [rowIndex, column] = cellKey.split('-')
+        const allData = getAllData()
+        const item = allData[parseInt(rowIndex)]
+        
+        let tentativa = ''
+        let precio = 0
+        
+        if (column === 't1') {
+          tentativa = 'TENTATIVA 1'
+          precio = item.t1
+        } else if (column === 't2') {
+          tentativa = 'TENTATIVA 2'
+          precio = item.t2
+        } else if (column === 't3') {
+          tentativa = 'TENTATIVA 3'
+          precio = item.t3
+        } else if (column === 'reconstrucción') {
+          tentativa = 'RECONSTRUCCIÓN'
+          precio = item.reconstrucción
+        }
+        
+        return {
+          pieza: item.pieza,
+          tentativa,
+          precio
+        }
+      })
+      
+      // Generar PDF usando la plantilla existente
+      await generatePdfFromPlantilla(formData, selectedData)
+      
+    } catch (error) {
+      console.error('Error al exportar PDF:', error)
+      alert('Error al generar el PDF. Por favor, intente nuevamente.')
+    }
   }
 
   const saveData = () => {
