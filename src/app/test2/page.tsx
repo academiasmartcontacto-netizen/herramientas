@@ -150,12 +150,12 @@ export default function Test2Page() {
                   <th className="border border-gray-800 px-2 py-2 text-left font-semibold whitespace-nowrap" colSpan={2}>PLACA:</th>
                 </tr>
                 <tr className="border-b border-gray-800" style={{ backgroundColor: '#FABF8F' }}>
-                  <th className="border border-gray-800 px-2 py-2 text-center font-semibold whitespace-nowrap">No.</th>
+                  <th className="border border-gray-800 px-2 py-2 text-center font-semibold whitespace-nowrap" style={{ width: '40px' }}>No..</th>
                   <th className="border border-gray-800 px-2 py-2 text-left font-semibold whitespace-nowrap">PIEZA</th>
-                  <th className="border border-gray-800 px-2 py-2 text-center font-semibold whitespace-nowrap">TENTATIVA 1</th>
-                  <th className="border border-gray-800 px-2 py-2 text-center font-semibold whitespace-nowrap">TENTATIVA 2</th>
-                  <th className="border border-gray-800 px-2 py-2 text-center font-semibold whitespace-nowrap">TENTATIVA 3</th>
-                  <th className="border border-gray-800 px-2 py-2 text-center font-semibold whitespace-nowrap">RECONSTRUCCIÓN</th>
+                  <th className="border border-gray-800 px-2 py-2 text-center font-semibold whitespace-nowrap" style={{ width: '100px' }}>TENTATIVA 1</th>
+                  <th className="border border-gray-800 px-2 py-2 text-center font-semibold whitespace-nowrap" style={{ width: '100px' }}>TENTATIVA 2</th>
+                  <th className="border border-gray-800 px-2 py-2 text-center font-semibold whitespace-nowrap" style={{ width: '100px' }}>TENTATIVA 3</th>
+                  <th className="border border-gray-800 px-2 py-2 text-center font-semibold whitespace-nowrap" style={{ width: '120px' }}>RECONSTRUCCIÓN</th>
                 </tr>
               </thead>
               <tbody>
@@ -205,17 +205,17 @@ export default function Test2Page() {
                 </tr>
 
                 {/* Cabecera Tabla 2 */}
-                <tr className="border-b border-gray-800" style={{ backgroundColor: '#FABF8F' }}>
-                  <th className="border border-gray-800 px-2 py-2 text-center font-semibold whitespace-nowrap">No.</th>
-                  <th className="border border-gray-800 px-2 py-2 text-left font-semibold whitespace-nowrap">PIEZA</th>
-                  <th className="border border-gray-800 px-2 py-2 text-center font-semibold whitespace-nowrap">TENTATIVA 1</th>
-                  <th className="border border-gray-800 px-2 py-2 text-center font-semibold whitespace-nowrap">TENTATIVA 2</th>
-                  <th className="border border-gray-800 px-2 py-2 text-center font-semibold whitespace-nowrap">TENTATIVA 3</th>
-                  <th className="border border-gray-800 px-2 py-2 text-center font-semibold whitespace-nowrap">RECONSTRUCCIÓN</th>
+                <tr>
+                  <th className="border border-gray-800 px-2 py-2 text-center font-semibold whitespace-nowrap" style={{ backgroundColor: '#FABF8F' }}>No.</th>
+                  <th className="border border-gray-800 px-2 py-2 text-left font-semibold whitespace-nowrap" style={{ backgroundColor: '#FABF8F' }}>PIEZA</th>
+                  <th className="border border-gray-800 px-2 py-2 text-center font-semibold whitespace-nowrap" style={{ backgroundColor: '#FABF8F' }}>TENTATIVA 1</th>
+                  <th className="border border-gray-800 px-2 py-2 text-center font-semibold whitespace-nowrap" style={{ backgroundColor: '#FABF8F' }}>TENTATIVA 2</th>
+                  <th className="border border-gray-800 px-2 py-2 text-center font-semibold whitespace-nowrap" style={{ backgroundColor: '#FABF8F' }}>TENTATIVA 3</th>
+                  <th className="border-0 bg-transparent" colSpan={1}></th>
                 </tr>
 
                 {/* Fila Tabla 2 */}
-                <tr className="border border-gray-800" style={{ height: 'auto', minHeight: '20px' }}>
+                <tr style={{ height: 'auto', minHeight: '20px' }}>
                   <td className="border border-gray-800 px-2 py-1 text-center whitespace-nowrap">30</td>
                   <td className="border border-gray-800 px-2 py-1 whitespace-nowrap">SERVICIO DE RAMPLA</td>
                   <td 
@@ -257,7 +257,7 @@ export default function Test2Page() {
                   >
                     {formatCurrency(1392.00)}
                   </td>
-                  <td className="border border-gray-800 px-2 py-1 text-center whitespace-nowrap">-</td>
+                  <td className="border-0 bg-transparent"></td>
                 </tr>
 
                 {/* Espacio equivalente al alto de una fila */}
@@ -266,18 +266,16 @@ export default function Test2Page() {
                 </tr>
 
                 {/* Cabecera Tabla 3 */}
-                <tr className="border-b border-gray-800" style={{ backgroundColor: '#FABF8F' }}>
-                  <th className="border border-gray-800 px-2 py-2 text-center font-semibold whitespace-nowrap">No.</th>
-                  <th className="border border-gray-800 px-2 py-2 text-left font-semibold whitespace-nowrap">PIEZA</th>
-                  <th className="border border-gray-800 px-2 py-2 text-center font-semibold whitespace-nowrap">TENTATIVA 1</th>
-                  <th className="border border-gray-800 px-2 py-2 text-center font-semibold whitespace-nowrap">TENTATIVA 2</th>
-                  <th className="border border-gray-800 px-2 py-2 text-center font-semibold whitespace-nowrap">TENTATIVA 3</th>
-                  <th className="border border-gray-800 px-2 py-2 text-center font-semibold whitespace-nowrap">RECONSTRUCCIÓN</th>
+                <tr>
+                  <th className="border border-gray-800 px-2 py-2 text-center font-semibold whitespace-nowrap" style={{ backgroundColor: '#FABF8F' }}>No.</th>
+                  <th className="border border-gray-800 px-2 py-2 text-left font-semibold whitespace-nowrap" style={{ backgroundColor: '#FABF8F' }}>PIEZA</th>
+                  <th className="border border-gray-800 px-2 py-2 text-center font-semibold whitespace-nowrap" style={{ backgroundColor: '#FABF8F' }}>TENTATIVA 1</th>
+                  <th className="border-0 bg-transparent" colSpan={3}></th>
                 </tr>
 
                 {/* Filas Tabla 3 */}
                 {tabla3Datos.map((item, index) => (
-                  <tr key={`table3-${item.no}-${index}`} className="border border-gray-800" style={{ height: 'auto', minHeight: '20px' }}>
+                  <tr key={`table3-${item.no}-${index}`} style={{ height: 'auto', minHeight: '20px' }}>
                     <td className="border border-gray-800 px-2 py-1 text-center whitespace-nowrap">{item.no}</td>
                     <td className="border border-gray-800 px-2 py-1 whitespace-nowrap">{item.pieza}</td>
                     <td 
@@ -293,9 +291,7 @@ export default function Test2Page() {
                     >
                       {formatCurrency(item.t1)}
                     </td>
-                    <td className="border border-gray-800 px-2 py-1 text-center whitespace-nowrap">-</td>
-                    <td className="border border-gray-800 px-2 py-1 text-center whitespace-nowrap">-</td>
-                    <td className="border border-gray-800 px-2 py-1 text-center whitespace-nowrap">-</td>
+                    <td className="border-0 bg-transparent" colSpan={3}></td>
                   </tr>
                 ))}
               </tbody>
