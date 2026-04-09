@@ -173,7 +173,7 @@ const formatCurrency = (amount: number): string => {
 
 // Función para descargar PDF en el navegador
 export const downloadPDF = (pdfBytes: Uint8Array, filename: string = 'convenio-taller.pdf') => {
-  const blob = new Blob([pdfBytes], { type: 'application/pdf' })
+  const blob = new Blob([pdfBytes as any], { type: 'application/pdf' })
   const url = URL.createObjectURL(blob)
   const link = document.createElement('a')
   link.href = url
