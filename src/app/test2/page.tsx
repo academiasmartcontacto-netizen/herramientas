@@ -1,6 +1,8 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useRef } from 'react'
+import html2canvas from 'html2canvas'
+import jsPDF from 'jspdf'
 
 interface FormData {
   asegurado: string
@@ -27,6 +29,10 @@ export default function Test2Page() {
   })
   
   const [selectedCells, setSelectedCells] = useState<Set<string>>(new Set())
+  const [dynamicItems, setDynamicItems] = useState<{ pieza: string, valor: number }[]>([])
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [newItem, setNewItem] = useState({ pieza: '', valor: '' })
+  const tableRef = useRef<HTMLDivElement>(null)
 
   // Datos exactos del Excel - mismos que TablaPrecios.tsx
   const tablaDatos: PiezaData[] = [
@@ -77,6 +83,51 @@ export default function Test2Page() {
     setFormData(prev => ({ ...prev, [name]: value }))
   }
 
+  const handleAddItem = () => {
+    if (newItem.pieza && newItem.valor) {
+      setDynamicItems(prev => [...prev, { 
+        pieza: newItem.pieza, 
+        valor: parseFloat(newItem.valor.replace(',', '.')) 
+      }])
+      setNewItem({ pieza: '', valor: '' })
+      setIsModalOpen(false)
+    }
+  }
+
+  const exportToPDF = async () => {
+    if (!tableRef.current) return
+
+    try {
+      const element = tableRef.current
+      const canvas = await html2canvas(element, {
+        scale: 2, // Mayor calidad
+        useCORS: true,
+        backgroundColor: '#ffffff'
+      })
+
+      const imgData = canvas.toDataURL('image/png')
+      
+      // Ancho de hoja carta en mm (215.9 mm)
+      const pdfWidth = 215.9
+      // Calcular alto proporcional
+      const imgProps = (canvas.height * pdfWidth) / canvas.width
+      const pdfHeight = imgProps
+
+      // Crear PDF con alto variable
+      const pdf = new jsPDF({
+        orientation: 'portrait',
+        unit: 'mm',
+        format: [pdfWidth, pdfHeight]
+      })
+
+      pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight)
+      pdf.save('presupuesto-talleres.pdf')
+    } catch (error) {
+      console.error('Error generando PDF:', error)
+      alert('Hubo un error al generar el PDF. Por favor intenta de nuevo.')
+    }
+  }
+
   const toggleCell = (rowIndex: number, column: string) => {
     const cellKey = `${rowIndex}-${column}`
     const newSelected = new Set(selectedCells)
@@ -107,6 +158,10 @@ export default function Test2Page() {
         const [_, rowIndex, column] = cellKey.split('-')
         const item = tabla3Datos[parseInt(rowIndex)]
         if (column === 't1' && item) total += item.t1
+      } else if (cellKey.startsWith('dynamic-')) {
+        const [_, rowIndex] = cellKey.split('-')
+        const item = dynamicItems[parseInt(rowIndex)]
+        if (item) total += item.valor
       } else {
         const [rowIndex, column] = cellKey.split('-')
         const item = tablaDatos[parseInt(rowIndex)]
@@ -127,71 +182,75 @@ export default function Test2Page() {
         <h1 className="text-2xl font-bold mb-4">TEST 2 - Réplica Exacta del Excel</h1>
         
         {/* Contenedor que simula la hoja de Excel */}
-        <div className="bg-white shadow-lg inline-block">
+        <div ref={tableRef} className="bg-white shadow-lg inline-block p-8">
           
           <div className="overflow-auto">
-            <table className="w-auto" style={{ fontFamily: 'Arial, sans-serif', fontSize: '11px', tableLayout: 'auto' }}>
+            <table className="w-auto" style={{ fontFamily: 'Arial, sans-serif', fontSize: '11px', tableLayout: 'auto', borderCollapse: 'collapse' }}>
               <thead>
                 {/* Cabecera Principal - Tabla 1 */}
-                <tr className="border-b border-gray-400" style={{ backgroundColor: '#FABF8F' }}>
-                  <th className="border border-gray-800 px-2 py-2 text-center font-black whitespace-nowrap" colSpan={6}>TABLA DE PRECIOS PARA TALLERES AUTORIZADOS</th>
+                <tr className="border-b border-gray-300" style={{ backgroundColor: '#FABF8F' }}>
+                  <th className="border border-gray-400 px-2 py-2 text-center font-black whitespace-nowrap" colSpan={6} style={{ verticalAlign: 'middle' }}>TABLA DE PRECIOS PARA TALLERES AUTORIZADOS</th>
+                </tr>
+                <tr className="border-b border-gray-300" style={{ backgroundColor: '#FABF8F' }}>
+                  <th className="border border-gray-400 px-2 py-2 text-left font-semibold whitespace-nowrap" colSpan={6} style={{ verticalAlign: 'middle' }}>ASEGURADO:</th>
+                </tr>
+                <tr className="border-b border-gray-300" style={{ backgroundColor: '#FABF8F' }}>
+                  <th className="border border-gray-400 px-2 py-2 text-left font-semibold whitespace-nowrap" colSpan={2} style={{ verticalAlign: 'middle' }}>VEHÍCULO D.P.:</th>
+                  <th className="border border-gray-400 px-2 py-2 text-left font-semibold whitespace-nowrap" colSpan={2} style={{ verticalAlign: 'middle' }}>MARCA:</th>
+                  <th className="border border-gray-400 px-2 py-2 text-left font-semibold whitespace-nowrap" colSpan={2} style={{ verticalAlign: 'middle' }}>PLACA:</th>
+                </tr>
+                <tr className="border-b border-gray-300" style={{ backgroundColor: '#FABF8F' }}>
+                  <th className="border border-gray-400 px-2 py-2 text-left font-semibold whitespace-nowrap" colSpan={2} style={{ verticalAlign: 'middle' }}>VEHÍCULO R.C.:</th>
+                  <th className="border border-gray-400 px-2 py-2 text-left font-semibold whitespace-nowrap" colSpan={2} style={{ verticalAlign: 'middle' }}>MARCA:</th>
+                  <th className="border border-gray-400 px-2 py-2 text-left font-semibold whitespace-nowrap" colSpan={2} style={{ verticalAlign: 'middle' }}>PLACA:</th>
                 </tr>
                 <tr className="border-b border-gray-400" style={{ backgroundColor: '#FABF8F' }}>
-                  <th className="border border-gray-800 px-2 py-2 text-left font-semibold whitespace-nowrap" colSpan={6}>ASEGURADO:</th>
-                </tr>
-                <tr className="border-b border-gray-400" style={{ backgroundColor: '#FABF8F' }}>
-                  <th className="border border-gray-800 px-2 py-2 text-left font-semibold whitespace-nowrap" colSpan={2}>VEHÍCULO D.P.:</th>
-                  <th className="border border-gray-800 px-2 py-2 text-left font-semibold whitespace-nowrap" colSpan={2}>MARCA:</th>
-                  <th className="border border-gray-800 px-2 py-2 text-left font-semibold whitespace-nowrap" colSpan={2}>PLACA:</th>
-                </tr>
-                <tr className="border-b border-gray-400" style={{ backgroundColor: '#FABF8F' }}>
-                  <th className="border border-gray-800 px-2 py-2 text-left font-semibold whitespace-nowrap" colSpan={2}>VEHÍCULO R.C.:</th>
-                  <th className="border border-gray-800 px-2 py-2 text-left font-semibold whitespace-nowrap" colSpan={2}>MARCA:</th>
-                  <th className="border border-gray-800 px-2 py-2 text-left font-semibold whitespace-nowrap" colSpan={2}>PLACA:</th>
-                </tr>
-                <tr className="border-b border-gray-800" style={{ backgroundColor: '#FABF8F' }}>
-                  <th className="border border-gray-800 px-2 py-2 text-center font-semibold whitespace-nowrap" style={{ width: '40px' }}>No..</th>
-                  <th className="border border-gray-800 px-2 py-2 text-left font-semibold whitespace-nowrap">PIEZA</th>
-                  <th className="border border-gray-800 px-2 py-2 text-center font-semibold whitespace-nowrap" style={{ width: '100px' }}>TENTATIVA 1</th>
-                  <th className="border border-gray-800 px-2 py-2 text-center font-semibold whitespace-nowrap" style={{ width: '100px' }}>TENTATIVA 2</th>
-                  <th className="border border-gray-800 px-2 py-2 text-center font-semibold whitespace-nowrap" style={{ width: '100px' }}>TENTATIVA 3</th>
-                  <th className="border border-gray-800 px-2 py-2 text-center font-semibold whitespace-nowrap" style={{ width: '120px' }}>RECONSTRUCCIÓN</th>
+                  <th className="border border-gray-400 px-2 py-2 text-center font-semibold whitespace-nowrap" style={{ width: '40px', verticalAlign: 'middle' }}>No.</th>
+                  <th className="border border-gray-400 px-2 py-2 text-left font-semibold whitespace-nowrap" style={{ verticalAlign: 'middle' }}>PIEZA</th>
+                  <th className="border border-gray-400 px-2 py-2 text-center font-semibold whitespace-nowrap" style={{ width: '100px', verticalAlign: 'middle' }}>TENTATIVA 1</th>
+                  <th className="border border-gray-400 px-2 py-2 text-center font-semibold whitespace-nowrap" style={{ width: '100px', verticalAlign: 'middle' }}>TENTATIVA 2</th>
+                  <th className="border border-gray-400 px-2 py-2 text-center font-semibold whitespace-nowrap" style={{ width: '100px', verticalAlign: 'middle' }}>TENTATIVA 3</th>
+                  <th className="border border-gray-400 px-2 py-2 text-center font-semibold whitespace-nowrap" style={{ width: '120px', verticalAlign: 'middle' }}>RECONSTRUCCIÓN</th>
                 </tr>
               </thead>
               <tbody>
                 {/* Filas Tabla 1 */}
                 {tablaDatos.map((item, index) => (
-                  <tr key={`${item.no}-${index}`} className="border border-gray-800" style={{ height: 'auto', minHeight: '20px' }}>
-                    <td className="border border-gray-800 px-2 py-1 text-center whitespace-nowrap">{item.no}</td>
-                    <td className="border border-gray-800 px-2 py-1 whitespace-nowrap">{item.pieza}</td>
+                  <tr key={`${item.no}-${index}`} className="border border-gray-300" style={{ height: 'auto', minHeight: '20px' }}>
+                    <td className="border border-gray-400 px-2 py-1 text-center whitespace-nowrap" style={{ verticalAlign: 'middle' }}>{item.no}</td>
+                    <td className="border border-gray-400 px-2 py-1 whitespace-nowrap" style={{ verticalAlign: 'middle' }}>{item.pieza}</td>
                     <td 
-                      className={`border border-gray-800 px-2 py-1 text-center cursor-pointer whitespace-nowrap ${
+                      className={`border border-gray-400 px-2 py-1 text-center cursor-pointer whitespace-nowrap ${
                         selectedCells.has(`${index}-t1`) ? 'bg-yellow-200' : 'hover:bg-gray-100'
                       }`}
+                      style={{ verticalAlign: 'middle' }}
                       onClick={() => toggleCell(index, 't1')}
                     >
                       {formatCurrency(item.t1)}
                     </td>
                     <td 
-                      className={`border border-gray-800 px-2 py-1 text-center cursor-pointer whitespace-nowrap ${
+                      className={`border border-gray-400 px-2 py-1 text-center cursor-pointer whitespace-nowrap ${
                         selectedCells.has(`${index}-t2`) ? 'bg-yellow-200' : 'hover:bg-gray-100'
                       }`}
+                      style={{ verticalAlign: 'middle' }}
                       onClick={() => toggleCell(index, 't2')}
                     >
                       {formatCurrency(item.t2)}
                     </td>
                     <td 
-                      className={`border border-gray-800 px-2 py-1 text-center cursor-pointer whitespace-nowrap ${
+                      className={`border border-gray-400 px-2 py-1 text-center cursor-pointer whitespace-nowrap ${
                         selectedCells.has(`${index}-t3`) ? 'bg-yellow-200' : 'hover:bg-gray-100'
                       }`}
+                      style={{ verticalAlign: 'middle' }}
                       onClick={() => toggleCell(index, 't3')}
                     >
                       {formatCurrency(item.t3)}
                     </td>
                     <td 
-                      className={`border border-gray-800 px-2 py-1 text-center cursor-pointer whitespace-nowrap ${
+                      className={`border border-gray-400 px-2 py-1 text-center cursor-pointer whitespace-nowrap ${
                         selectedCells.has(`${index}-reconstrucción`) ? 'bg-yellow-200' : 'hover:bg-gray-100'
                       }`}
+                      style={{ verticalAlign: 'middle' }}
                       onClick={() => toggleCell(index, 'reconstrucción')}
                     >
                       {formatCurrency(item.reconstrucción)}
@@ -206,22 +265,23 @@ export default function Test2Page() {
 
                 {/* Cabecera Tabla 2 */}
                 <tr>
-                  <th className="border border-gray-800 px-2 py-2 text-center font-semibold whitespace-nowrap" style={{ backgroundColor: '#FABF8F' }}>No.</th>
-                  <th className="border border-gray-800 px-2 py-2 text-left font-semibold whitespace-nowrap" style={{ backgroundColor: '#FABF8F' }}>PIEZA</th>
-                  <th className="border border-gray-800 px-2 py-2 text-center font-semibold whitespace-nowrap" style={{ backgroundColor: '#FABF8F' }}>TENTATIVA 1</th>
-                  <th className="border border-gray-800 px-2 py-2 text-center font-semibold whitespace-nowrap" style={{ backgroundColor: '#FABF8F' }}>TENTATIVA 2</th>
-                  <th className="border border-gray-800 px-2 py-2 text-center font-semibold whitespace-nowrap" style={{ backgroundColor: '#FABF8F' }}>TENTATIVA 3</th>
+                  <th className="border border-gray-400 px-2 py-2 text-center font-semibold whitespace-nowrap" style={{ backgroundColor: '#FABF8F', verticalAlign: 'middle' }}>No.</th>
+                  <th className="border border-gray-400 px-2 py-2 text-left font-semibold whitespace-nowrap" style={{ backgroundColor: '#FABF8F', verticalAlign: 'middle' }}>PIEZA</th>
+                  <th className="border border-gray-400 px-2 py-2 text-center font-semibold whitespace-nowrap" style={{ backgroundColor: '#FABF8F', verticalAlign: 'middle' }}>TENTATIVA 1</th>
+                  <th className="border border-gray-400 px-2 py-2 text-center font-semibold whitespace-nowrap" style={{ backgroundColor: '#FABF8F', verticalAlign: 'middle' }}>TENTATIVA 2</th>
+                  <th className="border border-gray-400 px-2 py-2 text-center font-semibold whitespace-nowrap" style={{ backgroundColor: '#FABF8F', verticalAlign: 'middle' }}>TENTATIVA 3</th>
                   <th className="border-0 bg-transparent" colSpan={1}></th>
                 </tr>
 
                 {/* Fila Tabla 2 */}
                 <tr style={{ height: 'auto', minHeight: '20px' }}>
-                  <td className="border border-gray-800 px-2 py-1 text-center whitespace-nowrap">30</td>
-                  <td className="border border-gray-800 px-2 py-1 whitespace-nowrap">SERVICIO DE RAMPLA</td>
+                  <td className="border border-gray-400 px-2 py-1 text-center whitespace-nowrap" style={{ verticalAlign: 'middle' }}>30</td>
+                  <td className="border border-gray-400 px-2 py-1 whitespace-nowrap" style={{ verticalAlign: 'middle' }}>SERVICIO DE RAMPLA</td>
                   <td 
-                    className={`border border-gray-800 px-2 py-1 text-center cursor-pointer whitespace-nowrap ${
+                    className={`border border-gray-400 px-2 py-1 text-center cursor-pointer whitespace-nowrap ${
                       selectedCells.has(`rampla-t1`) ? 'bg-yellow-200' : 'hover:bg-gray-100'
                     }`}
+                    style={{ verticalAlign: 'middle' }}
                     onClick={() => {
                       const newSelected = new Set(selectedCells)
                       if (newSelected.has('rampla-t1')) newSelected.delete('rampla-t1')
@@ -232,9 +292,10 @@ export default function Test2Page() {
                     {formatCurrency(696.00)}
                   </td>
                   <td 
-                    className={`border border-gray-800 px-2 py-1 text-center cursor-pointer whitespace-nowrap ${
+                    className={`border border-gray-400 px-2 py-1 text-center cursor-pointer whitespace-nowrap ${
                       selectedCells.has(`rampla-t2`) ? 'bg-yellow-200' : 'hover:bg-gray-100'
                     }`}
+                    style={{ verticalAlign: 'middle' }}
                     onClick={() => {
                       const newSelected = new Set(selectedCells)
                       if (newSelected.has('rampla-t2')) newSelected.delete('rampla-t2')
@@ -245,9 +306,10 @@ export default function Test2Page() {
                     {formatCurrency(1044.00)}
                   </td>
                   <td 
-                    className={`border border-gray-800 px-2 py-1 text-center cursor-pointer whitespace-nowrap ${
+                    className={`border border-gray-400 px-2 py-1 text-center cursor-pointer whitespace-nowrap ${
                       selectedCells.has(`rampla-t3`) ? 'bg-yellow-200' : 'hover:bg-gray-100'
                     }`}
+                    style={{ verticalAlign: 'middle' }}
                     onClick={() => {
                       const newSelected = new Set(selectedCells)
                       if (newSelected.has('rampla-t3')) newSelected.delete('rampla-t3')
@@ -267,21 +329,22 @@ export default function Test2Page() {
 
                 {/* Cabecera Tabla 3 */}
                 <tr>
-                  <th className="border border-gray-800 px-2 py-2 text-center font-semibold whitespace-nowrap" style={{ backgroundColor: '#FABF8F' }}>No.</th>
-                  <th className="border border-gray-800 px-2 py-2 text-left font-semibold whitespace-nowrap" style={{ backgroundColor: '#FABF8F' }}>PIEZA</th>
-                  <th className="border border-gray-800 px-2 py-2 text-center font-semibold whitespace-nowrap" style={{ backgroundColor: '#FABF8F' }}>TENTATIVA 1</th>
+                  <th className="border border-gray-400 px-2 py-2 text-center font-semibold whitespace-nowrap" style={{ backgroundColor: '#FABF8F', verticalAlign: 'middle' }}>No.</th>
+                  <th className="border border-gray-400 px-2 py-2 text-left font-semibold whitespace-nowrap" style={{ backgroundColor: '#FABF8F', verticalAlign: 'middle' }}>PIEZA</th>
+                  <th className="border border-gray-400 px-2 py-2 text-center font-semibold whitespace-nowrap" style={{ backgroundColor: '#FABF8F', verticalAlign: 'middle' }}>TENTATIVA 1</th>
                   <th className="border-0 bg-transparent" colSpan={3}></th>
                 </tr>
 
                 {/* Filas Tabla 3 */}
                 {tabla3Datos.map((item, index) => (
                   <tr key={`table3-${item.no}-${index}`} style={{ height: 'auto', minHeight: '20px' }}>
-                    <td className="border border-gray-800 px-2 py-1 text-center whitespace-nowrap">{item.no}</td>
-                    <td className="border border-gray-800 px-2 py-1 whitespace-nowrap">{item.pieza}</td>
+                    <td className="border border-gray-400 px-2 py-1 text-center whitespace-nowrap" style={{ verticalAlign: 'middle' }}>{item.no}</td>
+                    <td className="border border-gray-400 px-2 py-1 whitespace-nowrap" style={{ verticalAlign: 'middle' }}>{item.pieza}</td>
                     <td 
-                      className={`border border-gray-800 px-2 py-1 text-center cursor-pointer whitespace-nowrap ${
+                      className={`border border-gray-400 px-2 py-1 text-center cursor-pointer whitespace-nowrap ${
                         selectedCells.has(`t3-${index}-t1`) ? 'bg-yellow-200' : 'hover:bg-gray-100'
                       }`}
+                      style={{ verticalAlign: 'middle' }}
                       onClick={() => {
                         const newSelected = new Set(selectedCells)
                         if (newSelected.has(`t3-${index}-t1`)) newSelected.delete(`t3-${index}-t1`)
@@ -294,14 +357,124 @@ export default function Test2Page() {
                     <td className="border-0 bg-transparent" colSpan={3}></td>
                   </tr>
                 ))}
-              </tbody>
-            </table>
+
+                {/* Espacio equivalente al alto de una fila */}
+                <tr style={{ height: '24px' }}>
+                  <td colSpan={2} className="border-0"></td>
+                  <td colSpan={4} className="border-0 text-right py-2">
+                    <button 
+                      onClick={() => setIsModalOpen(true)}
+                      className="bg-orange-500 hover:bg-orange-600 text-white text-[10px] font-bold py-1 px-3 rounded shadow-sm transition-colors flex items-center gap-1 ml-auto"
+                    >
+                      <span>Añadir +</span>
+                    </button>
+                  </td>
+                </tr>
+
+                {/* Filas Tabla 4 (Dinámica) */}
+                {dynamicItems.map((item, index) => (
+                  <tr key={`dynamic-${index}`} style={{ height: 'auto', minHeight: '20px' }}>
+                    <td className="border border-gray-400 px-2 py-1 text-center whitespace-nowrap" style={{ verticalAlign: 'middle' }}>{39 + index}</td>
+                    <td className="border border-gray-400 px-2 py-1 whitespace-nowrap" style={{ verticalAlign: 'middle' }}>{item.pieza}</td>
+                    <td 
+                      className={`border border-gray-400 px-2 py-1 text-center cursor-pointer whitespace-nowrap ${
+                        selectedCells.has(`dynamic-${index}`) ? 'bg-yellow-200' : 'hover:bg-gray-100'
+                      }`}
+                      style={{ verticalAlign: 'middle' }}
+                      onClick={() => {
+                        const newSelected = new Set(selectedCells)
+                        if (newSelected.has(`dynamic-${index}`)) newSelected.delete(`dynamic-${index}`)
+                        else newSelected.add(`dynamic-${index}`)
+                        setSelectedCells(newSelected)
+                      }}
+                    >
+                      {formatCurrency(item.valor)}
+                    </td>
+                    <td className="border-0 bg-transparent" colSpan={3}></td>
+                   </tr>
+                 ))}
+
+                {/* Espacio antes del Total */}
+                <tr style={{ height: '24px' }}>
+                  <td colSpan={6} className="border-0"></td>
+                </tr>
+
+                {/* Fila de TOTAL [BS] */}
+                <tr>
+                  <td 
+                    colSpan={2} 
+                    className="border border-gray-400 px-4 py-2 text-right font-black text-sm"
+                    style={{ backgroundColor: '#FABF8F', verticalAlign: 'middle' }}
+                  >
+                    TOTAL [BS]
+                  </td>
+                  <td 
+                    className="border border-gray-400 px-4 py-2 text-center font-bold text-sm bg-white"
+                    style={{ verticalAlign: 'middle' }}
+                  >
+                    {formatCurrency(calculateTotal())}
+                  </td>
+                  <td colSpan={3} className="border-0 bg-transparent"></td>
+                </tr>
+               </tbody>
+             </table>
+           </div>
+         </div>
+
+        {/* Modal para añadir ítem */}
+        {isModalOpen && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white p-6 rounded-lg shadow-xl w-96 border border-gray-200">
+              <h2 className="text-lg font-bold mb-4 text-gray-800">Añadir Ítem Adicional</h2>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Nombre del ítem</label>
+                  <input 
+                    type="text" 
+                    className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:ring-orange-500 focus:border-orange-500 outline-none"
+                    placeholder="Ej: RECARGO POR TRABAJO NOCTURNO"
+                    value={newItem.pieza}
+                    onChange={(e) => setNewItem(prev => ({ ...prev, pieza: e.target.value.toUpperCase() }))}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Valor</label>
+                  <input 
+                    type="text" 
+                    className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:ring-orange-500 focus:border-orange-500 outline-none"
+                    placeholder="0,00"
+                    value={newItem.valor}
+                    onChange={(e) => setNewItem(prev => ({ ...prev, valor: e.target.value }))}
+                  />
+                </div>
+              </div>
+              <div className="mt-6 flex justify-end gap-3">
+                <button 
+                  onClick={() => setIsModalOpen(false)}
+                  className="px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-800 transition-colors"
+                >
+                  Cancelar
+                </button>
+                <button 
+                  onClick={handleAddItem}
+                  className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded text-sm font-bold shadow-md transition-all active:scale-95"
+                >
+                  Añadir Ítem
+                </button>
+              </div>
+            </div>
           </div>
-        </div>
+        )}
 
         {/* Botones de acción */}
-        <div className="mt-4 flex gap-4">
-          <button className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">
+        <div className="mt-8 flex gap-4">
+          <button 
+            onClick={exportToPDF}
+            className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-lg shadow transition-all flex items-center gap-2"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
             Exportar a PDF
           </button>
           <button className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded">
