@@ -113,29 +113,29 @@ export default function Test2Page() {
         <h1 className="text-2xl font-bold mb-4">TEST 2 - Réplica Exacta del Excel</h1>
         
         {/* Contenedor que simula la hoja de Excel */}
-        <div className="bg-white shadow-lg" style={{ width: '100%', maxWidth: '1200px' }}>
+        <div className="bg-white shadow-lg inline-block">
           
           
           {/* Tabla - Réplica exacta del Excel */}
           <div className="overflow-auto">
-            <table className="w-full" style={{ fontFamily: 'Arial, sans-serif', fontSize: '11px' }}>
+            <table className="w-auto" style={{ fontFamily: 'Arial, sans-serif', fontSize: '11px', tableLayout: 'auto' }}>
               <thead>
                 <tr className="border-b-2 border-gray-800" style={{ backgroundColor: '#FABF8F' }}>
-                  <th className="border border-gray-800 px-2 py-2 text-center font-semibold">No.</th>
-                  <th className="border border-gray-800 px-2 py-2 text-left font-semibold">PIEZA</th>
-                  <th className="border border-gray-800 px-2 py-2 text-center font-semibold">TENTATIVA 1</th>
-                  <th className="border border-gray-800 px-2 py-2 text-center font-semibold">TENTATIVA 2</th>
-                  <th className="border border-gray-800 px-2 py-2 text-center font-semibold">TENTATIVA 3</th>
-                  <th className="border border-gray-800 px-2 py-2 text-center font-semibold">RECONSTRUCCIÓN</th>
+                  <th className="border border-gray-800 px-2 py-2 text-center font-semibold whitespace-nowrap">No.</th>
+                  <th className="border border-gray-800 px-2 py-2 text-left font-semibold whitespace-nowrap">PIEZA</th>
+                  <th className="border border-gray-800 px-2 py-2 text-center font-semibold whitespace-nowrap">TENTATIVA 1</th>
+                  <th className="border border-gray-800 px-2 py-2 text-center font-semibold whitespace-nowrap">TENTATIVA 2</th>
+                  <th className="border border-gray-800 px-2 py-2 text-center font-semibold whitespace-nowrap">TENTATIVA 3</th>
+                  <th className="border border-gray-800 px-2 py-2 text-center font-semibold whitespace-nowrap">RECONSTRUCCIÓN</th>
                 </tr>
               </thead>
               <tbody>
                 {tablaDatos.map((item, index) => (
-                  <tr key={item.no} className="border border-gray-800" style={{ height: '20px' }}>
-                    <td className="border border-gray-800 px-2 py-1 text-center">{item.no}</td>
-                    <td className="border border-gray-800 px-2 py-1">{item.pieza}</td>
+                  <tr key={item.no} className="border border-gray-800" style={{ height: 'auto', minHeight: '20px' }}>
+                    <td className="border border-gray-800 px-2 py-1 text-center whitespace-nowrap">{item.no}</td>
+                    <td className="border border-gray-800 px-2 py-1 whitespace-nowrap">{item.pieza}</td>
                     <td 
-                      className={`border border-gray-800 px-2 py-1 text-center cursor-pointer ${
+                      className={`border border-gray-800 px-2 py-1 text-center cursor-pointer whitespace-nowrap ${
                         selectedCells.has(`${index}-t1`) ? 'bg-yellow-200' : 'hover:bg-gray-100'
                       }`}
                       onClick={() => toggleCell(index, 't1')}
@@ -143,7 +143,7 @@ export default function Test2Page() {
                       {formatCurrency(item.t1)}
                     </td>
                     <td 
-                      className={`border border-gray-800 px-2 py-1 text-center cursor-pointer ${
+                      className={`border border-gray-800 px-2 py-1 text-center cursor-pointer whitespace-nowrap ${
                         selectedCells.has(`${index}-t2`) ? 'bg-yellow-200' : 'hover:bg-gray-100'
                       }`}
                       onClick={() => toggleCell(index, 't2')}
@@ -151,7 +151,7 @@ export default function Test2Page() {
                       {formatCurrency(item.t2)}
                     </td>
                     <td 
-                      className={`border border-gray-800 px-2 py-1 text-center cursor-pointer ${
+                      className={`border border-gray-800 px-2 py-1 text-center cursor-pointer whitespace-nowrap ${
                         selectedCells.has(`${index}-t3`) ? 'bg-yellow-200' : 'hover:bg-gray-100'
                       }`}
                       onClick={() => toggleCell(index, 't3')}
@@ -159,7 +159,7 @@ export default function Test2Page() {
                       {formatCurrency(item.t3)}
                     </td>
                     <td 
-                      className={`border border-gray-800 px-2 py-1 text-center cursor-pointer ${
+                      className={`border border-gray-800 px-2 py-1 text-center cursor-pointer whitespace-nowrap ${
                         selectedCells.has(`${index}-reconstrucción`) ? 'bg-yellow-200' : 'hover:bg-gray-100'
                       }`}
                       onClick={() => toggleCell(index, 'reconstrucción')}
