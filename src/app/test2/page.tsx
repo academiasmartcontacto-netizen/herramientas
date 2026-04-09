@@ -129,11 +129,10 @@ export default function Test2Page() {
         {/* Contenedor que simula la hoja de Excel */}
         <div className="bg-white shadow-lg inline-block">
           
-          
-          {/* Primera Tabla */}
           <div className="overflow-auto">
             <table className="w-auto" style={{ fontFamily: 'Arial, sans-serif', fontSize: '11px', tableLayout: 'auto' }}>
               <thead>
+                {/* Cabecera Principal - Tabla 1 */}
                 <tr className="border-b border-gray-400" style={{ backgroundColor: '#FABF8F' }}>
                   <th className="border border-gray-800 px-2 py-2 text-center font-black whitespace-nowrap" colSpan={6}>TABLA DE PRECIOS PARA TALLERES AUTORIZADOS</th>
                 </tr>
@@ -160,6 +159,7 @@ export default function Test2Page() {
                 </tr>
               </thead>
               <tbody>
+                {/* Filas Tabla 1 */}
                 {tablaDatos.map((item, index) => (
                   <tr key={`${item.no}-${index}`} className="border border-gray-800" style={{ height: 'auto', minHeight: '20px' }}>
                     <td className="border border-gray-800 px-2 py-1 text-center whitespace-nowrap">{item.no}</td>
@@ -198,17 +198,13 @@ export default function Test2Page() {
                     </td>
                   </tr>
                 ))}
-              </tbody>
-            </table>
-          </div>
 
-          {/* Espacio equivalente al alto de una fila */}
-          <div style={{ height: '24px' }}></div>
+                {/* Espacio equivalente al alto de una fila */}
+                <tr style={{ height: '24px' }}>
+                  <td colSpan={6} className="border-0"></td>
+                </tr>
 
-          {/* Segunda Tabla (Idéntica pero sin cabeceras redundantes) */}
-          <div className="overflow-auto">
-            <table className="w-auto" style={{ fontFamily: 'Arial, sans-serif', fontSize: '11px', tableLayout: 'auto' }}>
-              <thead>
+                {/* Cabecera Tabla 2 */}
                 <tr className="border-b border-gray-800" style={{ backgroundColor: '#FABF8F' }}>
                   <th className="border border-gray-800 px-2 py-2 text-center font-semibold whitespace-nowrap">No.</th>
                   <th className="border border-gray-800 px-2 py-2 text-left font-semibold whitespace-nowrap">PIEZA</th>
@@ -217,8 +213,8 @@ export default function Test2Page() {
                   <th className="border border-gray-800 px-2 py-2 text-center font-semibold whitespace-nowrap">TENTATIVA 3</th>
                   <th className="border border-gray-800 px-2 py-2 text-center font-semibold whitespace-nowrap">RECONSTRUCCIÓN</th>
                 </tr>
-              </thead>
-              <tbody>
+
+                {/* Fila Tabla 2 */}
                 <tr className="border border-gray-800" style={{ height: 'auto', minHeight: '20px' }}>
                   <td className="border border-gray-800 px-2 py-1 text-center whitespace-nowrap">30</td>
                   <td className="border border-gray-800 px-2 py-1 whitespace-nowrap">SERVICIO DE RAMPLA</td>
@@ -263,17 +259,13 @@ export default function Test2Page() {
                   </td>
                   <td className="border border-gray-800 px-2 py-1 text-center whitespace-nowrap">-</td>
                 </tr>
-              </tbody>
-            </table>
-          </div>
 
-          {/* Espacio equivalente al alto de una fila */}
-          <div style={{ height: '24px' }}></div>
+                {/* Espacio equivalente al alto de una fila */}
+                <tr style={{ height: '24px' }}>
+                  <td colSpan={6} className="border-0"></td>
+                </tr>
 
-          {/* Tercera Tabla (Igual a la segunda) */}
-          <div className="overflow-auto">
-            <table className="w-auto" style={{ fontFamily: 'Arial, sans-serif', fontSize: '11px', tableLayout: 'auto' }}>
-              <thead>
+                {/* Cabecera Tabla 3 */}
                 <tr className="border-b border-gray-800" style={{ backgroundColor: '#FABF8F' }}>
                   <th className="border border-gray-800 px-2 py-2 text-center font-semibold whitespace-nowrap">No.</th>
                   <th className="border border-gray-800 px-2 py-2 text-left font-semibold whitespace-nowrap">PIEZA</th>
@@ -282,35 +274,34 @@ export default function Test2Page() {
                   <th className="border border-gray-800 px-2 py-2 text-center font-semibold whitespace-nowrap">TENTATIVA 3</th>
                   <th className="border border-gray-800 px-2 py-2 text-center font-semibold whitespace-nowrap">RECONSTRUCCIÓN</th>
                 </tr>
-              </thead>
-              <tbody>
-                 {tabla3Datos.map((item, index) => (
-                   <tr key={`table3-${item.no}-${index}`} className="border border-gray-800" style={{ height: 'auto', minHeight: '20px' }}>
-                     <td className="border border-gray-800 px-2 py-1 text-center whitespace-nowrap">{item.no}</td>
-                     <td className="border border-gray-800 px-2 py-1 whitespace-nowrap">{item.pieza}</td>
-                     <td 
-                       className={`border border-gray-800 px-2 py-1 text-center cursor-pointer whitespace-nowrap ${
-                         selectedCells.has(`t3-${index}-t1`) ? 'bg-yellow-200' : 'hover:bg-gray-100'
-                       }`}
-                       onClick={() => {
-                         const newSelected = new Set(selectedCells)
-                         if (newSelected.has(`t3-${index}-t1`)) newSelected.delete(`t3-${index}-t1`)
-                         else newSelected.add(`t3-${index}-t1`)
-                         setSelectedCells(newSelected)
-                       }}
-                     >
-                       {formatCurrency(item.t1)}
-                     </td>
-                     <td className="border border-gray-800 px-2 py-1 text-center whitespace-nowrap">-</td>
-                     <td className="border border-gray-800 px-2 py-1 text-center whitespace-nowrap">-</td>
-                     <td className="border border-gray-800 px-2 py-1 text-center whitespace-nowrap">-</td>
-                   </tr>
-                 ))}
-               </tbody>
+
+                {/* Filas Tabla 3 */}
+                {tabla3Datos.map((item, index) => (
+                  <tr key={`table3-${item.no}-${index}`} className="border border-gray-800" style={{ height: 'auto', minHeight: '20px' }}>
+                    <td className="border border-gray-800 px-2 py-1 text-center whitespace-nowrap">{item.no}</td>
+                    <td className="border border-gray-800 px-2 py-1 whitespace-nowrap">{item.pieza}</td>
+                    <td 
+                      className={`border border-gray-800 px-2 py-1 text-center cursor-pointer whitespace-nowrap ${
+                        selectedCells.has(`t3-${index}-t1`) ? 'bg-yellow-200' : 'hover:bg-gray-100'
+                      }`}
+                      onClick={() => {
+                        const newSelected = new Set(selectedCells)
+                        if (newSelected.has(`t3-${index}-t1`)) newSelected.delete(`t3-${index}-t1`)
+                        else newSelected.add(`t3-${index}-t1`)
+                        setSelectedCells(newSelected)
+                      }}
+                    >
+                      {formatCurrency(item.t1)}
+                    </td>
+                    <td className="border border-gray-800 px-2 py-1 text-center whitespace-nowrap">-</td>
+                    <td className="border border-gray-800 px-2 py-1 text-center whitespace-nowrap">-</td>
+                    <td className="border border-gray-800 px-2 py-1 text-center whitespace-nowrap">-</td>
+                  </tr>
+                ))}
+              </tbody>
             </table>
           </div>
-
-                  </div>
+        </div>
 
         {/* Botones de acción */}
         <div className="mt-4 flex gap-4">
