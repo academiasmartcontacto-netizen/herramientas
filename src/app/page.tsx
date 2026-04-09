@@ -1,10 +1,10 @@
-import TablaPreciosSimple from '@/components/TablaPreciosSimple'
+import TablaPrecios from '@/components/TablaPrecios'
 
 export default function Home() {
   return (
     <main className="min-h-screen p-4">
       {/* Deploy v2.0 - with custom rows functionality */}
-      <TablaPreciosSimple />
+      <TablaPrecios />
     </main>
   )
 }

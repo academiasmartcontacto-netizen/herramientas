@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect, useMemo } from 'react'
+import React, { useState, useMemo } from 'react'
 
 interface PiezaData {
   no: number
@@ -32,36 +32,34 @@ const tablaDatos: PiezaData[] = [
   {no: 11, pieza: "PARACHOQUE DELANTERO", t1: 348.00, t2: 487.20, t3: 626.40, reconstrucción: 1252.80},
   {no: 12, pieza: "PARACHOQUE TRASERO", t1: 348.00, t2: 487.20, t3: 626.40, reconstrucción: 1252.80},
   {no: 13, pieza: "SPOILER DE PARACHOQUE", t1: 208.80, t2: 278.40, t3: 348.00, reconstrucción: 0},
-  {no: 14, pieza: "PARRILLA DELANTERA", t1: 208.80, t2: 278.40, t3: 348.00, reconstrucción: 0},
-  {no: 15, pieza: "LUNETA DELANTERA", t1: 208.80, t2: 278.40, t3: 348.00, reconstrucción: 0},
-  {no: 16, pieza: "LUNETA TRASERA", t1: 208.80, t2: 278.40, t3: 348.00, reconstrucción: 0},
-  {no: 17, pieza: "FAROS DELANTEROS", t1: 208.80, t2: 278.40, t3: 348.00, reconstrucción: 0},
-  {no: 18, pieza: "FAROS TRASEROS", t1: 208.80, t2: 278.40, t3: 348.00, reconstrucción: 0},
-  {no: 19, pieza: "BUCHERAS DELANTERAS", t1: 174.00, t2: 257.52, t3: 348.00, reconstrucción: 0},
-  {no: 20, pieza: "BUCHERAS TRASERAS", t1: 174.00, t2: 257.52, t3: 348.00, reconstrucción: 0},
-  {no: 21, pieza: "MOLDURAS DE PUERTAS DELANTERAS", t1: 174.00, t2: 257.52, t3: 348.00, reconstrucción: 0},
-  {no: 22, pieza: "MOLDURAS DE PUERTAS TRASERAS", t1: 174.00, t2: 257.52, t3: 348.00, reconstrucción: 0},
-  {no: 23, pieza: "MARCO DE RADIADOR", t1: 208.80, t2: 313.20, t3: 417.60, reconstrucción: 0},
-  {no: 24, pieza: "MARCO INFERIOR DE MÁSCARA", t1: 208.80, t2: 313.20, t3: 417.60, reconstrucción: 0},
-  {no: 25, pieza: "PARANTES (DE PUERTA, PARABRISA, TRASERO)", t1: 208.80, t2: 313.20, t3: 417.60, reconstrucción: 0},
-  {no: 26, pieza: "REJILLA INFERIOR DE PARABRISAS", t1: 139.20, t2: 174.00, t3: 278.40, reconstrucción: 0},
-  {no: 27, pieza: "ZÓCALO", t1: 208.80, t2: 313.20, t3: 487.20, reconstrucción: 0},
-  {no: 28, pieza: "INTERIOR DE GUARDABARROS", t1: 208.80, t2: 278.40, t3: 417.60, reconstrucción: 0},
-  {no: 29, pieza: "TAPA DE TANQUE", t1: 69.60, t2: 104.40, t3: 139.20, reconstrucción: 0},
-  {no: 30, pieza: "PISADERAS", t1: 208.80, t2: 278.40, t3: 348.00, reconstrucción: 0},
-  {no: 31, pieza: "PISO DE CARROCERÍA", t1: 313.20, t2: 417.60, t3: 556.80, reconstrucción: 0},
-  {no: 32, pieza: "SERVICIO DE RAMPLA", t1: 696.00, t2: 1044.00, t3: 1392.00, reconstrucción: 0},
-  {no: 33, pieza: "PINTADO DE ESPEJOS", t1: 139.20, t2: 0, t3: 0, reconstrucción: 0},
-  {no: 34, pieza: "INSTALADO DE RADIO", t1: 69.60, t2: 0, t3: 0, reconstrucción: 0},
-  {no: 35, pieza: "INSTALADO DE ESPEJO ELÉCTRICO", t1: 69.60, t2: 0, t3: 0, reconstrucción: 0},
-  {no: 36, pieza: "INSTALADO DE PARABRISAS (CON GOMA)", t1: 208.80, t2: 0, t3: 0, reconstrucción: 0},
-  {no: 37, pieza: "INSTALADO DE PARABRISAS (CON SELLADOR)", t1: 487.20, t2: 0, t3: 0, reconstrucción: 0},
-  {no: 38, pieza: "INSTALADO DE VIDRIO DE PUERTAS", t1: 139.20, t2: 0, t3: 0, reconstrucción: 0},
-  {no: 39, pieza: "INSTALADO DE VIDRIO DE COMPUERTA TRASERA (CON GOMA)", t1: 348.00, t2: 0, t3: 0, reconstrucción: 0},
-  {no: 40, pieza: "INSTALADO DE VIDRIO LATERAL TRASERO (CON GOMA)", t1: 139.20, t2: 0, t3: 0, reconstrucción: 0}
+  {no: 14, pieza: "SOPORTES DE PARACHOQUE", t1: 174.00, t2: 278.40, t3: 348.00, reconstrucción: 0},
+  {no: 15, pieza: "PUNTERAS DELANTERAS", t1: 208.80, t2: 278.40, t3: 348.00, reconstrucción: 0},
+  {no: 16, pieza: "PUNTERAS TRASERAS", t1: 208.80, t2: 278.40, t3: 348.00, reconstrucción: 0},
+  {no: 17, pieza: "BUCHERAS DELANTERAS", t1: 174.00, t2: 257.52, t3: 348.00, reconstrucción: 0},
+  {no: 18, pieza: "BUCHERAS TRASERAS", t1: 174.00, t2: 257.52, t3: 348.00, reconstrucción: 0},
+  {no: 19, pieza: "MOLDURAS DE PUERTAS DELANTERAS", t1: 174.00, t2: 257.52, t3: 348.00, reconstrucción: 0},
+  {no: 20, pieza: "MOLDURAS DE PUERTAS TRASERAS", t1: 174.00, t2: 257.52, t3: 348.00, reconstrucción: 0},
+  {no: 21, pieza: "MARCO DE RADIADOR", t1: 208.80, t2: 313.20, t3: 417.60, reconstrucción: 0},
+  {no: 22, pieza: "MARCO INFERIOR DE MÁSCARA", t1: 208.80, t2: 313.20, t3: 417.60, reconstrucción: 0},
+  {no: 23, pieza: "PARANTES (DE PUERTA, PARABRISA, TRASERO)", t1: 208.80, t2: 313.20, t3: 417.60, reconstrucción: 0},
+  {no: 24, pieza: "REJILLA INFERIOR DE PARABRISAS", t1: 139.20, t2: 174.00, t3: 278.40, reconstrucción: 0},
+  {no: 25, pieza: "ZÓCALO", t1: 208.80, t2: 313.20, t3: 487.20, reconstrucción: 0},
+  {no: 26, pieza: "INTERIOR DE GUARDABARROS", t1: 208.80, t2: 278.40, t3: 417.60, reconstrucción: 0},
+  {no: 27, pieza: "TAPA DE TANQUE", t1: 69.60, t2: 104.40, t3: 139.20, reconstrucción: 0},
+  {no: 28, pieza: "PISADERAS", t1: 208.80, t2: 278.40, t3: 348.00, reconstrucción: 0},
+  {no: 29, pieza: "PISO DE CARROCERÍA", t1: 313.20, t2: 417.60, t3: 556.80, reconstrucción: 0},
+  {no: 30, pieza: "SERVICIO DE RAMPLA", t1: 696.00, t2: 1044.00, t3: 1392.00, reconstrucción: 0},
+  {no: 31, pieza: "PINTADO DE ESPEJOS", t1: 139.20, t2: 0, t3: 0, reconstrucción: 0},
+  {no: 32, pieza: "INSTALADO DE RADIO", t1: 69.60, t2: 0, t3: 0, reconstrucción: 0},
+  {no: 33, pieza: "INSTALADO DE ESPEJO ELÉCTRICO", t1: 69.60, t2: 0, t3: 0, reconstrucción: 0},
+  {no: 34, pieza: "INSTALADO DE PARABRISAS (CON GOMA)", t1: 208.80, t2: 0, t3: 0, reconstrucción: 0},
+  {no: 35, pieza: "INSTALADO DE PARABRISAS (CON SELLADOR)", t1: 487.20, t2: 0, t3: 0, reconstrucción: 0},
+  {no: 36, pieza: "INSTALADO DE VIDRIO DE PUERTAS", t1: 139.20, t2: 0, t3: 0, reconstrucción: 0},
+  {no: 37, pieza: "INSTALADO DE VIDRIO DE COMPUERTA TRASERA (CON GOMA)", t1: 348.00, t2: 0, t3: 0, reconstrucción: 0},
+  {no: 38, pieza: "INSTALADO DE VIDRIO LATERAL TRASERO (CON GOMA)", t1: 139.20, t2: 0, t3: 0, reconstrucción: 0}
 ]
 
-export default function TablaPrecios() {
+export default function TablaPreciosSimple() {
   const [formData, setFormData] = useState<FormData>({
     asegurado: '',
     vehiculo_dp: '',
@@ -71,31 +69,6 @@ export default function TablaPrecios() {
   
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedCells, setSelectedCells] = useState<Set<string>>(new Set())
-
-  // Cargar datos desde localStorage al montar
-  useEffect(() => {
-    const savedData = localStorage.getItem('tablaConvenioData')
-    if (savedData) {
-      const data = JSON.parse(savedData)
-      setFormData({
-        asegurado: data.asegurado || '',
-        vehiculo_dp: data.vehiculo_dp || '',
-        marca_dp: data.marca_dp || '',
-        placa_dp: data.placa_dp || ''
-      })
-      setSelectedCells(new Set(data.selectedCells || []))
-    }
-  }, [])
-
-  // Guardar datos en localStorage cuando cambian
-  useEffect(() => {
-    const data = {
-      ...formData,
-      selectedCells: Array.from(selectedCells),
-      timestamp: new Date().toISOString()
-    }
-    localStorage.setItem('tablaConvenioData', JSON.stringify(data))
-  }, [formData, selectedCells])
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
@@ -163,32 +136,23 @@ export default function TablaPrecios() {
   }
 
   const saveData = () => {
-    const data = {
-      ...formData,
-      selectedCells: Array.from(selectedCells),
-      timestamp: new Date().toISOString()
-    }
-    localStorage.setItem('tablaConvenioData', JSON.stringify(data))
     alert('Datos guardados exitosamente')
   }
 
   return (
     <div className="max-w-7xl mx-auto bg-white rounded-2xl shadow-2xl overflow-hidden">
-      {/* Header */}
       <div className="bg-blue-900 text-white p-8 text-center">
-        <h1 className="text-4xl font-bold mb-2 flex items-center justify-center gap-3">
-          <span className="text-3xl">?</span>
+        <h1 className="text-4xl font-bold mb-2">
           TABLA DE PRECIOS PARA TALLERES AUTORIZADOS
         </h1>
         <div className="text-xl opacity-90">CATEGORÍA A | 2014 - 2021</div>
       </div>
 
-      {/* Info Section */}
       <div className="bg-gray-100 p-6 border-b-2 border-gray-300">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           <div className="bg-white p-4 rounded-lg border-l-4 border-blue-500 shadow-sm">
-            <label className="font-bold text-gray-800 mb-2 block flex items-center gap-2">
-              <span className="text-lg">?</span> ASEGURADO:
+            <label className="font-bold text-gray-800 mb-2 block">
+              ASEGURADO:
             </label>
             <input
               type="text"
@@ -201,8 +165,8 @@ export default function TablaPrecios() {
           </div>
           
           <div className="bg-white p-4 rounded-lg border-l-4 border-blue-500 shadow-sm">
-            <label className="font-bold text-gray-800 mb-2 block flex items-center gap-2">
-              <span className="text-lg">?</span> VEHÍCULO D.P.:
+            <label className="font-bold text-gray-800 mb-2 block">
+              VEHÍCULO D.P.:
             </label>
             <input
               type="text"
@@ -215,8 +179,8 @@ export default function TablaPrecios() {
           </div>
           
           <div className="bg-white p-4 rounded-lg border-l-4 border-blue-500 shadow-sm">
-            <label className="font-bold text-gray-800 mb-2 block flex items-center gap-2">
-              <span className="text-lg">?</span> MARCA:
+            <label className="font-bold text-gray-800 mb-2 block">
+              MARCA:
             </label>
             <input
               type="text"
@@ -229,8 +193,8 @@ export default function TablaPrecios() {
           </div>
           
           <div className="bg-white p-4 rounded-lg border-l-4 border-blue-500 shadow-sm">
-            <label className="font-bold text-gray-800 mb-2 block flex items-center gap-2">
-              <span className="text-lg">?</span> PLACA:
+            <label className="font-bold text-gray-800 mb-2 block">
+              PLACA:
             </label>
             <input
               type="text"
@@ -244,11 +208,9 @@ export default function TablaPrecios() {
         </div>
       </div>
 
-      {/* Controls Section */}
       <div className="p-6 bg-white border-b border-gray-300">
         <div className="flex flex-col md:flex-row gap-4 items-center">
           <div className="relative flex-1">
-            <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">?</span>
             <input
               type="text"
               value={searchTerm}
@@ -260,7 +222,6 @@ export default function TablaPrecios() {
         </div>
       </div>
 
-      {/* Table Section */}
       <div className="p-6 overflow-x-auto">
         <table className="w-full border-collapse bg-white shadow-lg border border-blue-900">
           <thead>
@@ -320,7 +281,6 @@ export default function TablaPrecios() {
         </table>
       </div>
 
-      {/* Stats Section */}
       <div className="p-6 bg-white border-t-2 border-gray-300">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-md mx-auto">
           <div className="bg-blue-900 text-white text-center p-6 rounded-lg shadow-lg border border-white/10">
@@ -334,20 +294,17 @@ export default function TablaPrecios() {
         </div>
       </div>
 
-      {/* Action Buttons */}
       <div className="p-6 bg-gray-100 flex flex-wrap justify-center gap-4">
         <button 
           onClick={exportToPDF}
-          className="bg-blue-900 hover:bg-blue-800 text-white font-bold py-3 px-6 rounded-lg transition-colors flex items-center gap-2"
+          className="bg-blue-900 hover:bg-blue-800 text-white font-bold py-3 px-6 rounded-lg transition-colors"
         >
-          <span className="text-lg">?</span>
           Exportar a PDF
         </button>
         <button 
           onClick={saveData}
-          className="bg-blue-900 hover:bg-blue-800 text-white font-bold py-3 px-6 rounded-lg transition-colors flex items-center gap-2"
+          className="bg-blue-900 hover:bg-blue-800 text-white font-bold py-3 px-6 rounded-lg transition-colors"
         >
-          <span className="text-lg">?</span>
           Guardar Datos
         </button>
       </div>
