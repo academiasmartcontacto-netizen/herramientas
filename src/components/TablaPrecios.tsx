@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useMemo } from 'react'
+import React, { useState, useMemo, useEffect } from 'react'
 
 interface PiezaData {
   no: number
@@ -9,6 +9,11 @@ interface PiezaData {
   t2: number
   t3: number
   reconstrucción: number
+  isDuplicate?: boolean
+  originalNo?: number
+  originalPieza?: string
+  side?: 'LH' | 'RH' | ''
+  isCustom?: boolean
 }
 
 interface FormData {
@@ -69,6 +74,14 @@ export default function TablaPreciosSimple() {
   
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedCells, setSelectedCells] = useState<Set<string>>(new Set())
+  const [dynamicData, setDynamicData] = useState<PiezaData[]>(tablaDatos)
+  const [activeMenu, setActiveMenu] = useState<number | null>(null)
+  const [customItems, setCustomItems] = useState<PiezaData[]>([])
+  const [showAddForm, setShowAddForm] = useState(false)
+  const [newCustomItem, setNewCustomItem] = useState({
+    pieza: '',
+    t1: ''
+  })
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
@@ -97,13 +110,149 @@ export default function TablaPreciosSimple() {
     setSelectedCells(newSelectedCells)
   }
 
+  // Piezas que pueden tener duplicación LH/RH
+  const piecesWithSides = [
+    'GUARDABARROS DELANTEROS',
+    'GUARDABARROS TRASEROS',
+    'PUERTAS DELANTERAS',
+    'PUERTAS TRASERAS',
+    'MOLDURAS DE PUERTAS DELANTERAS',
+    'MOLDURAS DE PUERTAS TRASERAS',
+    'BUCHERAS DELANTERAS',
+    'BUCHERAS TRASERAS',
+    'PUNTERAS DELANTERAS',
+    'PUNTERAS TRASERAS'
+  ]
+
+  const canDuplicate = (pieza: string) => {
+    return piecesWithSides.some(piece => pieza.includes(piece))
+  }
+
+  const duplicateAsLHRH = (index: number) => {
+    const allData = getAllData()
+    const item = allData[index]
+    
+    // Verificar si es una fila de dynamicData (no personalizada)
+    if (item.isCustom || !canDuplicate(item.pieza)) return
+
+    const newDynamicData = [...dynamicData]
+    const originalPiezaName = item.pieza
+    
+    // Modificar la fila original a LH
+    newDynamicData[index] = {
+      ...item,
+      pieza: `${item.pieza} LH`,
+      side: 'LH',
+      isDuplicate: true,
+      originalPieza: originalPiezaName
+    }
+
+    // Crear la fila duplicada RH
+    const rhItem: PiezaData = {
+      ...item,
+      pieza: `${item.pieza} RH`,
+      side: 'RH',
+      isDuplicate: true,
+      originalNo: item.no,
+      originalPieza: originalPiezaName
+    }
+
+    // Insertar la nueva fila después de la original
+    newDynamicData.splice(index + 1, 0, rhItem)
+
+    setDynamicData(newDynamicData)
+    setActiveMenu(null)
+  }
+
+  const restoreDuplicate = (index: number) => {
+    const item = dynamicData[index]
+    if (!item.isDuplicate || !item.originalPieza) return
+
+    const newDynamicData = [...dynamicData]
+    
+    // Buscar la fila duplicada correspondiente (LH o RH)
+    let duplicateIndex = -1
+    for (let i = 0; i < newDynamicData.length; i++) {
+      if (i !== index && 
+          newDynamicData[i].isDuplicate && 
+          newDynamicData[i].originalPieza === item.originalPieza) {
+        duplicateIndex = i
+        break
+      }
+    }
+
+    if (duplicateIndex !== -1) {
+      // Guardar las selecciones actuales antes de modificar
+      const currentSelections = new Set(selectedCells)
+      const newSelections = new Set<string>()
+      
+      // Eliminar ambas filas duplicadas
+      const indicesToRemove = [index, duplicateIndex].sort((a, b) => b - a) // Ordenar descendente para eliminar
+      
+      indicesToRemove.forEach(i => {
+        newDynamicData.splice(i, 1)
+      })
+
+      // Crear la fila original restaurada
+      const originalItem: PiezaData = {
+        ...item,
+        pieza: item.originalPieza,
+        isDuplicate: false,
+        originalNo: undefined,
+        originalPieza: undefined,
+        side: ''
+      }
+
+      // Insertar la fila original en la posición de la primera eliminada
+      const insertIndex = Math.min(index, duplicateIndex)
+      newDynamicData.splice(insertIndex, 0, originalItem)
+
+      // Renumerar TODAS las filas consecutivamente
+      newDynamicData.forEach((item, i) => {
+        item.no = i + 1
+      })
+
+      // Actualizar las selecciones para que coincidan con las nuevas posiciones
+      currentSelections.forEach(cellKey => {
+        const [oldIndex, column] = cellKey.split('-')
+        const oldIndexNum = parseInt(oldIndex)
+        
+        // Calcular el nuevo índice basado en las eliminaciones e inserción
+        let newIndex = oldIndexNum
+        
+        if (oldIndexNum > Math.max(index, duplicateIndex)) {
+          // Si el índice estaba después de ambas filas eliminadas, se mueve 2 posiciones hacia arriba
+          newIndex = oldIndexNum - 2
+        } else if (oldIndexNum > Math.min(index, duplicateIndex) && oldIndexNum <= Math.max(index, duplicateIndex)) {
+          // Si el índice estaba entre las filas eliminadas, se mueve 1 posición hacia arriba
+          newIndex = oldIndexNum - 1
+        }
+        
+        // Si el índice corresponde a una de las filas eliminadas, no se mantiene la selección
+        if (oldIndexNum !== index && oldIndexNum !== duplicateIndex) {
+          newSelections.add(`${newIndex}-${column}`)
+        }
+      })
+
+      setDynamicData(newDynamicData)
+      setSelectedCells(newSelections)
+    }
+    
+    setActiveMenu(null)
+  }
+
+  const getAllData = () => {
+    return [...dynamicData, ...customItems]
+  }
+
   const filteredData = useMemo(() => {
-    if (!searchTerm) return tablaDatos
-    return tablaDatos.filter(item => 
+    const allData = getAllData()
+    if (!searchTerm) return allData
+    return allData.filter(item => 
       item.pieza.toLowerCase().includes(searchTerm.toLowerCase()) ||
       item.no.toString().includes(searchTerm)
     )
-  }, [searchTerm])
+  }, [searchTerm, dynamicData, customItems])
 
   const stats = useMemo(() => {
     let piezasSeleccionadas = 0
@@ -111,7 +260,8 @@ export default function TablaPreciosSimple() {
 
     selectedCells.forEach(cellKey => {
       const [rowIndex, column] = cellKey.split('-')
-      const item = tablaDatos[parseInt(rowIndex)]
+      const allData = getAllData()
+      const item = allData[parseInt(rowIndex)]
       
       if (column === 't1') sumatoria += item.t1
       else if (column === 't2') sumatoria += item.t2
@@ -122,12 +272,13 @@ export default function TablaPreciosSimple() {
     })
 
     return { piezasSeleccionadas, sumatoria }
-  }, [selectedCells])
+  }, [selectedCells, dynamicData, customItems])
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('es-ES', {
       minimumFractionDigits: 2,
-      maximumFractionDigits: 2
+      maximumFractionDigits: 2,
+      useGrouping: true
     }).format(amount)
   }
 
@@ -138,6 +289,100 @@ export default function TablaPreciosSimple() {
   const saveData = () => {
     alert('Datos guardados exitosamente')
   }
+
+  // Funciones para gestionar filas personalizadas
+  const handleCustomItemChange = (field: string, value: string) => {
+    // Si es el campo de valor, solo permitir números y coma
+    if (field === 't1') {
+      // Eliminar todo excepto números y coma
+      const sanitizedValue = value.replace(/[^0-9,]/g, '')
+      setNewCustomItem(prev => ({ ...prev, [field]: sanitizedValue }))
+    } else if (field === 'pieza') {
+      // Convertir a mayúsculas el campo de descripción
+      setNewCustomItem(prev => ({ ...prev, [field]: value.toUpperCase() }))
+    } else {
+      setNewCustomItem(prev => ({ ...prev, [field]: value }))
+    }
+  }
+
+  const addCustomItem = () => {
+    // Validar que los campos estén completos
+    if (!newCustomItem.pieza || !newCustomItem.t1) {
+      alert('Por favor, complete todos los campos')
+      return
+    }
+
+    // Validar que el valor sea un número válido (solo coma como decimal)
+    const t1Value = newCustomItem.t1.replace(',', '.')
+    const t1 = parseFloat(t1Value)
+
+    if (isNaN(t1)) {
+      alert('Por favor, ingrese un valor numérico válido')
+      return
+    }
+
+    const customItem: PiezaData = {
+      no: 0, // No importa, el número se muestra con index + 1
+      pieza: newCustomItem.pieza.toUpperCase(),
+      t1,
+      t2: 0, // Valores en 0 para las otras columnas
+      t3: 0,
+      reconstrucción: 0,
+      isCustom: true
+    }
+
+    setCustomItems(prev => [...prev, customItem])
+    setNewCustomItem({
+      pieza: '',
+      t1: ''
+    })
+    setShowAddForm(false)
+  }
+
+  const removeCustomItem = (index: number) => {
+    setCustomItems(prev => prev.filter((_, i) => i !== index))
+    
+    // Limpiar solo las selecciones de la fila eliminada
+    const newSelections = new Set(selectedCells)
+    const actualIndex = dynamicData.length + index
+    
+    // Eliminar selecciones de la fila eliminada
+    newSelections.forEach(cellKey => {
+      const [rowIndex] = cellKey.split('-')
+      if (parseInt(rowIndex) === actualIndex) {
+        newSelections.delete(cellKey)
+      }
+    })
+    
+    // Reajustar los índices de las selecciones restantes
+    const adjustedSelections = new Set<string>()
+    newSelections.forEach(cellKey => {
+      const [rowIndex, column] = cellKey.split('-')
+      const oldIndex = parseInt(rowIndex)
+      
+      if (oldIndex > actualIndex) {
+        // Las filas después de la eliminada se mueven hacia arriba
+        adjustedSelections.add(`${oldIndex - 1}-${column}`)
+      } else if (oldIndex < actualIndex) {
+        // Las filas antes de la eliminada mantienen su índice
+        adjustedSelections.add(cellKey)
+      }
+    })
+    
+    setSelectedCells(adjustedSelections)
+  }
+
+  // Cerrar menú al hacer clic fuera
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as HTMLElement
+      if (!target.closest('.action-menu-container') && activeMenu !== null) {
+        setActiveMenu(null)
+      }
+    }
+    document.addEventListener('click', handleClickOutside)
+    return () => document.removeEventListener('click', handleClickOutside)
+  }, [activeMenu])
 
   return (
     <div className="max-w-7xl mx-auto bg-white rounded-2xl shadow-2xl overflow-hidden">
@@ -222,7 +467,7 @@ export default function TablaPreciosSimple() {
         </div>
       </div>
 
-      <div className="p-6 overflow-x-auto">
+      <div className="p-6 overflow-x-visible">
         <table className="w-full border-collapse bg-white shadow-lg border border-blue-900">
           <thead>
             <tr className="bg-blue-900 text-white">
@@ -238,10 +483,23 @@ export default function TablaPreciosSimple() {
           <tbody>
             {filteredData.map((item, index) => (
               <tr key={index} className="hover:bg-gray-50 border border-blue-900">
-                <td className="p-3 text-center font-semibold border border-blue-900">{item.no}</td>
-                <td className="p-3 text-left font-medium border border-blue-900">{item.pieza}</td>
+                <td className="p-3 text-center font-semibold border border-blue-900">{index + 1}</td>
+                <td className="p-3 text-left font-medium border border-blue-900">
+                  {item.isDuplicate ? (
+                    <>
+                      {item.pieza.split(' ').slice(0, -1).join(' ')}{' '}
+                      <span style={{ color: '#0071E3', fontWeight: 'bold' }}>
+                        {item.pieza.split(' ').slice(-1)[0]}
+                      </span>
+                    </>
+                  ) : item.isCustom ? (
+                    <span style={{ color: '#0071E3', fontWeight: 'bold' }}>{item.pieza}</span>
+                  ) : (
+                    item.pieza
+                  )}
+                </td>
                 <td 
-                  className={`p-3 text-center font-semibold cursor-default select-none border border-blue-900 ${
+                  className={`p-3 text-center cursor-default select-none border border-blue-900 ${
                     selectedCells.has(`${index}-t1`) ? 'bg-yellow-300' : 'hover:bg-gray-100'
                   }`}
                   onDoubleClick={() => handleCellDoubleClick(index, 't1')}
@@ -249,7 +507,7 @@ export default function TablaPreciosSimple() {
                   {formatCurrency(item.t1)}
                 </td>
                 <td 
-                  className={`p-3 text-center font-semibold cursor-default select-none border border-blue-900 ${
+                  className={`p-3 text-center cursor-default select-none border border-blue-900 ${
                     selectedCells.has(`${index}-t2`) ? 'bg-yellow-300' : 'hover:bg-gray-100'
                   }`}
                   onDoubleClick={() => handleCellDoubleClick(index, 't2')}
@@ -257,7 +515,7 @@ export default function TablaPreciosSimple() {
                   {formatCurrency(item.t2)}
                 </td>
                 <td 
-                  className={`p-3 text-center font-semibold cursor-default select-none border border-blue-900 ${
+                  className={`p-3 text-center cursor-default select-none border border-blue-900 ${
                     selectedCells.has(`${index}-t3`) ? 'bg-yellow-300' : 'hover:bg-gray-100'
                   }`}
                   onDoubleClick={() => handleCellDoubleClick(index, 't3')}
@@ -265,21 +523,131 @@ export default function TablaPreciosSimple() {
                   {formatCurrency(item.t3)}
                 </td>
                 <td 
-                  className={`p-3 text-center font-semibold cursor-default select-none border border-blue-900 ${
+                  className={`p-3 text-center cursor-default select-none border border-blue-900 ${
                     selectedCells.has(`${index}-reconstrucción`) ? 'bg-yellow-300' : 'hover:bg-gray-100'
                   }`}
                   onDoubleClick={() => handleCellDoubleClick(index, 'reconstrucción')}
                 >
                   {formatCurrency(item.reconstrucción)}
                 </td>
-                <td className="p-3 text-center border border-blue-900">
-                  <span className="text-gray-400 text-sm">Doble clic para seleccionar</span>
+                <td className="p-3 text-center border border-blue-900 relative">
+                  <div className="flex justify-center items-center action-menu-container">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        setActiveMenu(activeMenu === index ? null : index)
+                      }}
+                      className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                      title="Más acciones"
+                    >
+                      <svg className="w-5 h-5 text-gray-600" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"/>
+                      </svg>
+                    </button>
+                    
+                    {activeMenu === index && (
+                      <div 
+                        className="absolute right-0 top-full mt-1 bg-white border border-gray-300 rounded-lg shadow-xl z-50 min-w-[150px]"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        {item.isCustom && (
+                          <button
+                            onClick={() => removeCustomItem(index - dynamicData.length)}
+                            className="w-full text-left px-3 py-2 hover:bg-red-50 text-red-600 text-sm flex items-center gap-2"
+                          >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            </svg>
+                            Eliminar
+                          </button>
+                        )}
+                        {canDuplicate(item.pieza) && !item.isDuplicate && !item.isCustom && (
+                          <button
+                            onClick={() => duplicateAsLHRH(index)}
+                            className="w-full text-left px-3 py-2 hover:bg-gray-100 text-sm flex items-center gap-2"
+                          >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                            </svg>
+                            Duplicar LH/RH
+                          </button>
+                        )}
+                        {item.isDuplicate && (
+                          <button
+                            onClick={() => restoreDuplicate(index)}
+                            className="w-full text-left px-3 py-2 hover:bg-green-50 text-green-600 text-sm flex items-center gap-2"
+                          >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                            </svg>
+                            Restaurar
+                          </button>
+                        )}
+                        <button
+                          onClick={() => setActiveMenu(null)}
+                          className="w-full text-left px-3 py-2 hover:bg-gray-100 text-sm text-gray-500"
+                        >
+                          Cancelar
+                        </button>
+                      </div>
+                    )}
+                  </div>
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
       </div>
+
+      <div className="p-6 flex justify-end">
+        <button
+          onClick={() => setShowAddForm(!showAddForm)}
+          className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition-colors flex items-center gap-2 shadow-lg"
+        >
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+          </svg>
+          Añadir
+        </button>
+      </div>
+
+      {showAddForm && (
+        <div className="px-6 pb-6">
+          <div className="bg-white rounded-xl shadow-xl p-6 border border-blue-200">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="md:col-span-2">
+                <input
+                  type="text"
+                  value={newCustomItem.pieza}
+                  onChange={(e) => handleCustomItemChange('pieza', e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="Descripción de la pieza"
+                />
+              </div>
+              <div>
+                <input
+                  type="text"
+                  value={newCustomItem.t1}
+                  onChange={(e) => handleCustomItemChange('t1', e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="Valor (ej: 1500,50)"
+                />
+              </div>
+              <div className="md:col-span-3">
+                <button
+                  onClick={addCustomItem}
+                  className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-lg transition-colors flex items-center justify-center gap-2"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                  Agregar Ítem
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="p-6 bg-white border-t-2 border-gray-300">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-md mx-auto">
