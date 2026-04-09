@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState, useRef } from 'react'
-import jsPDF from 'jsPDF'
+import { jsPDF } from 'jspdf'
 import autoTable from 'jspdf-autotable'
 
 interface FormData {
@@ -179,12 +179,12 @@ export default function Test2Page() {
 
       // 2. Tabla 1 (Standard)
       const table1Rows = tablaDatos.map((item, index) => [
-        { content: item.no.toString(), styles: { halign: 'center' } },
-        { content: item.pieza, styles: { halign: 'left' } },
-        { content: formatCurrency(item.t1), styles: { halign: 'center', fillColor: selectedCells.has(`${index}-t1`) ? yellowSelected : undefined } },
-        { content: formatCurrency(item.t2), styles: { halign: 'center', fillColor: selectedCells.has(`${index}-t2`) ? yellowSelected : undefined } },
-        { content: formatCurrency(item.t3), styles: { halign: 'center', fillColor: selectedCells.has(`${index}-t3`) ? yellowSelected : undefined } },
-        { content: formatCurrency(item.reconstrucción), styles: { halign: 'center', fillColor: selectedCells.has(`${index}-reconstrucción`) ? yellowSelected : undefined } }
+        { content: item.no.toString(), styles: { halign: 'center' as const } },
+        { content: item.pieza, styles: { halign: 'left' as const } },
+        { content: formatCurrency(item.t1), styles: { halign: 'center' as const, fillColor: selectedCells.has(`${index}-t1`) ? yellowSelected : undefined } },
+        { content: formatCurrency(item.t2), styles: { halign: 'center' as const, fillColor: selectedCells.has(`${index}-t2`) ? yellowSelected : undefined } },
+        { content: formatCurrency(item.t3), styles: { halign: 'center' as const, fillColor: selectedCells.has(`${index}-t3`) ? yellowSelected : undefined } },
+        { content: formatCurrency(item.reconstrucción), styles: { halign: 'center' as const, fillColor: selectedCells.has(`${index}-reconstrucción`) ? yellowSelected : undefined } }
       ])
 
       autoTable(doc, {
@@ -208,11 +208,11 @@ export default function Test2Page() {
         head: [['No.', 'PIEZA', 'TENTATIVA 1', 'TENTATIVA 2', 'TENTATIVA 3']],
         body: [
           [
-            { content: '30', styles: { halign: 'center' } },
-            { content: 'SERVICIO DE RAMPLA', styles: { halign: 'left' } },
-            { content: formatCurrency(696.00), styles: { halign: 'center', fillColor: selectedCells.has('rampla-t1') ? yellowSelected : undefined } },
-            { content: formatCurrency(1044.00), styles: { halign: 'center', fillColor: selectedCells.has('rampla-t2') ? yellowSelected : undefined } },
-            { content: formatCurrency(1392.00), styles: { halign: 'center', fillColor: selectedCells.has('rampla-t3') ? yellowSelected : undefined } }
+            { content: '30', styles: { halign: 'center' as const } },
+            { content: 'SERVICIO DE RAMPLA', styles: { halign: 'left' as const } },
+            { content: formatCurrency(696.00), styles: { halign: 'center' as const, fillColor: selectedCells.has('rampla-t1') ? yellowSelected : undefined } },
+            { content: formatCurrency(1044.00), styles: { halign: 'center' as const, fillColor: selectedCells.has('rampla-t2') ? yellowSelected : undefined } },
+            { content: formatCurrency(1392.00), styles: { halign: 'center' as const, fillColor: selectedCells.has('rampla-t3') ? yellowSelected : undefined } }
           ]
         ],
         margin: { left: margin, right: margin, top: 0 }
@@ -220,9 +220,9 @@ export default function Test2Page() {
 
       // 4. Tabla 3 (Adicionales)
       const table3Rows = tabla3Datos.map((item, index) => [
-        { content: item.no.toString(), styles: { halign: 'center' } },
-        { content: item.pieza, styles: { halign: 'left' } },
-        { content: formatCurrency(item.t1), styles: { halign: 'center', fillColor: selectedCells.has(`t3-${index}-t1`) ? yellowSelected : undefined } }
+        { content: item.no.toString(), styles: { halign: 'center' as const } },
+        { content: item.pieza, styles: { halign: 'left' as const } },
+        { content: formatCurrency(item.t1), styles: { halign: 'center' as const, fillColor: selectedCells.has(`t3-${index}-t1`) ? yellowSelected : undefined } }
       ])
 
       autoTable(doc, {
@@ -239,9 +239,9 @@ export default function Test2Page() {
       // 5. Tabla 4 (Dinámicos)
       if (dynamicItems.length > 0) {
         const table4Rows = dynamicItems.map((item, index) => [
-          { content: (39 + index).toString(), styles: { halign: 'center' } },
-          { content: item.pieza, styles: { halign: 'left' } },
-          { content: formatCurrency(item.valor), styles: { halign: 'center', fillColor: selectedCells.has(`dynamic-${index}`) ? yellowSelected : undefined } }
+          { content: (39 + index).toString(), styles: { halign: 'center' as const } },
+          { content: item.pieza, styles: { halign: 'left' as const } },
+          { content: formatCurrency(item.valor), styles: { halign: 'center' as const, fillColor: selectedCells.has(`dynamic-${index}`) ? yellowSelected : undefined } }
         ])
 
         autoTable(doc, {
@@ -262,8 +262,8 @@ export default function Test2Page() {
         columnStyles: { 0: { cellWidth: 10 + 90 }, 1: { cellWidth: 25 } }, 
         body: [
           [
-            { content: 'TOTAL [BS]', styles: { halign: 'right', fontStyle: 'bold', fillColor: orangeHeader } },
-            { content: formatCurrency(calculateTotal()), styles: { halign: 'center', fontStyle: 'bold' } }
+            { content: 'TOTAL [BS]', styles: { halign: 'right' as const, fontStyle: 'bold', fillColor: orangeHeader } },
+            { content: formatCurrency(calculateTotal()), styles: { halign: 'center' as const, fontStyle: 'bold' } }
           ]
         ],
         margin: { left: margin, right: margin, top: 0 }
