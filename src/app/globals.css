@@ -1,0 +1,65 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    background-color: #1e3a8a;
+    color: white;
+    font-weight: bold;
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    transition: background-color 0.2s;
+  }
+  
+  .btn-primary:hover {
+    background-color: #1d4ed8;
+  }
+  
+  .btn-success {
+    background-color: #16a34a;
+    color: white;
+    font-weight: bold;
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    transition: background-color 0.2s;
+  }
+  
+  .btn-success:hover {
+    background-color: #15803d;
+  }
+  
+  .btn-warning {
+    background-color: #eab308;
+    color: white;
+    font-weight: bold;
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    transition: background-color 0.2s;
+  }
+  
+  .btn-warning:hover {
+    background-color: #ca8a04;
+  }
+  
+  .table-cell-price {
+    text-align: center;
+    font-weight: 600;
+    cursor: default;
+    user-select: none;
+  }
+  
+  .table-cell-price:hover {
+    background-color: #f3f4f6;
+  }
+  
+  .table-cell-price.selected {
+    background-color: #fef3c7;
+  }
+}
