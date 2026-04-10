@@ -157,8 +157,7 @@ export default function Test2Page() {
       // 1. Cabecera Principal
       autoTable(doc, {
         theme: 'grid',
-        styles: { fontSize: 8, font: 'helvetica', cellPadding: 1, minCellHeight: 6, valign: 'middle', textColor: [0, 0, 0] },
-        headStyles: { fillColor: orangeHeader, textColor: [0, 0, 0], lineWidth: 0.1, lineColor: [156, 163, 175] },
+        styles: { fontSize: 7, font: 'helvetica', cellPadding: 1, minCellHeight: 5, valign: 'middle', lineWidth: 0.1, lineColor: [156, 163, 175], textColor: [0, 0, 0] },
         columnStyles: columnStyles,
         margin: { top: margin, left: margin, right: margin },
         body: [
@@ -245,7 +244,7 @@ export default function Test2Page() {
         ])
 
         autoTable(doc, {
-          startY: (doc as any).lastAutoTable?.finalY,
+          startY: (doc as any).lastAutoTable?.finalY + 5,
           theme: 'grid',
           styles: { fontSize: 7, font: 'helvetica', cellPadding: 1, minCellHeight: 5, valign: 'middle', lineWidth: 0.1, lineColor: [156, 163, 175], textColor: [0, 0, 0] },
           columnStyles: { 0: columnStyles[0], 1: columnStyles[1], 2: columnStyles[2] },
